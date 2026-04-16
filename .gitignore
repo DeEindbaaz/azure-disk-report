@@ -1,0 +1,40 @@
+# Azure Resource Report - Git Ignore
+
+# Configuration files with sensitive data
+config.psd1
+*.credentials.json
+
+# Generated reports
+*.html
+Azure-UnusedResources-Report-*.html
+
+# Azure context files
+*.azurecontext
+
+# PowerShell debugging
+*.psess
+*.vsp
+
+# Output folders
+Reports/
+Output/
+
+# Logs
+*.log
+*.err
+
+# Temporary files
+*.tmp
+~$*
+*.bak
+
+# User-specific files
+.vs/
+.vscode/settings.json
+
+# Windows thumbnail cache
+Thumbs.db
+ehthumbs.db
+
+# MacOS
+.DS_Store
