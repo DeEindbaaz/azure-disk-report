@@ -79,11 +79,12 @@ function Get-DiskMonthlyCost {
 # Function to get Public IP monthly cost
 function Get-PublicIPMonthlyCost {
     param([string]$SkuName)
-    return switch ($SkuName) {
+    $cost = switch ($SkuName) {
         'Standard' { 3.65 }
         'Basic' { 2.50 }
         default { 2.50 }
     }
+    return $cost
 }
 
 try {

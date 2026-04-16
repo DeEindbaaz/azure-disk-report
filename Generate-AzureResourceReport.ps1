@@ -98,11 +98,13 @@ function Get-PublicIPMonthlyCost {
     )
     
     # Azure Public IP pricing (EUR per month) - Basic/Standard
-    return switch ($SkuName) {
+    $cost = switch ($SkuName) {
         'Standard' { 3.65 }   # ~$0.005/hour
         'Basic' { 2.50 }
         default { 2.50 }
     }
+    
+    return $cost
 }
 
 try {
