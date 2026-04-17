@@ -145,7 +145,7 @@ Clear-AzContext -Force
 Connect-AzAccount
 ```
 
-## 📧 Contact & Support
+## Contact & Support
 
 Voor vragen of problemen, maak een issue aan in de repository.
 
