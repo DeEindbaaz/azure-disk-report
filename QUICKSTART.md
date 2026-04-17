@@ -71,7 +71,7 @@ Install-Module Az.Network -Force -Scope CurrentUser
 ```
 
 ### Probleem: "Access Denied"
-**Oplossing:** Vraag je Azure administrator om Reader rechten op de betreffende subscription(s).
+**Oplossing:** Vraag je Azure administrator om Reader rechten op de betreffende subscription(s), of ken deze aan jezelf toe als je daar de mogelijkheid toe hebt.
 
 ## Hulp nodig?
 
