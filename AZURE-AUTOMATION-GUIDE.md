@@ -1,10 +1,10 @@
- # Azure Automation Deployment Guide
+# Azure Automation Deployment Guide
 
-## Overzicht
+## Overview
 
-Deze guide helpt u bij het deployen van het Resource Report script als Azure Automation Runbook voor enterprise-level automatisering.
+This guide helps you deploy the Resource Report script as an Azure Automation Runbook for enterprise-level automation.
 
-## Architectuur
+## Architecture
 
 ```
 Azure Automation Account (Managed Identity)
@@ -18,21 +18,21 @@ Stores in Azure Storage Blob
 Sends Email via SendGrid (optional)
 ```
 
-## Deployment Stappen
+## Deployment Steps
 
-### Stap 1: Creëer Automation Account
+### Step 1: Create Automation Account
 
 ```powershell
 # Variables
 $resourceGroup = "rg-automation"
 $location = "westeurope"
 $automationAccountName = "aa-resource-reports"
-$storageAccountName = "stresourcereports"  # Moet uniek zijn
+$storageAccountName = "stresourcereports"  # Must be unique
 
-# Creëer Resource Group
+# Create Resource Group
 New-AzResourceGroup -Name $resourceGroup -Location $location
 
-# Creëer Automation Account
+# Create Automation Account
 New-AzAutomationAccount `
     -Name $automationAccountName `
     -Location $location `
@@ -42,21 +42,21 @@ New-AzAutomationAccount `
 Write-Host "Automation Account created: $automationAccountName"
 ```
 
-### Stap 2: Schakel Managed Identity in
+### Step 2: Enable Managed Identity
 
 ```powershell
-# Managed Identity is al enabled via -AssignSystemIdentity
-# Haal de Principal ID op
+# Managed Identity is already enabled via -AssignSystemIdentity
+# Get the Principal ID
 $aa = Get-AzAutomationAccount -ResourceGroupName $resourceGroup -Name $automationAccountName
 $principalId = $aa.Identity.PrincipalId
 
 Write-Host "Managed Identity Principal ID: $principalId"
 ```
 
-### Stap 3: Wijs Reader Rechten toe
+### Step 3: Assign Reader Permissions
 
 ```powershell
-# Wijs Reader role toe op alle subscriptions die gescand moeten worden
+# Assign Reader role to all subscriptions that need to be scanned
 $subscriptions = Get-AzSubscription | Where-Object { $_.State -eq 'Enabled' }
 
 foreach ($sub in $subscriptions) {
@@ -72,10 +72,10 @@ foreach ($sub in $subscriptions) {
 }
 ```
 
-### Stap 4: Creëer Storage Account voor Reports
+### Step 4: Create Storage Account for Reports
 
 ```powershell
-# Creëer Storage Account
+# Create Storage Account
 New-AzStorageAccount `
     -ResourceGroupName $resourceGroup `
     -Name $storageAccountName `
@@ -83,7 +83,7 @@ New-AzStorageAccount `
     -SkuName Standard_LRS `
     -Kind StorageV2
 
-# Wijs Storage Blob Data Contributor role toe
+# Assign Storage Blob Data Contributor role
 $storageAccount = Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $storageAccountName
 
 New-AzRoleAssignment `
@@ -94,10 +94,10 @@ New-AzRoleAssignment `
 Write-Host "Storage Account created: $storageAccountName"
 ```
 
-### Stap 5: Installeer Required Modules
+### Step 5: Install Required Modules
 
 ```powershell
-# Modules die benodigd zijn in Automation Account
+# Modules required in Automation Account
 $modules = @(
     @{ Name = 'Az.Accounts'; Version = 'latest' }
     @{ Name = 'Az.Compute'; Version = 'latest' }
@@ -127,10 +127,10 @@ foreach ($module in $modules) {
 }
 ```
 
-### Stap 6: Upload Runbook
+### Step 6: Upload Runbook
 
 ```powershell
-# Upload het runbook script
+# Upload the runbook script
 $runbookName = "Generate-AzureResourceReport"
 $runbookPath = ".\Azure-Automation-Runbook.ps1"
 
@@ -142,7 +142,7 @@ Import-AzAutomationRunbook `
     -Path $runbookPath `
     -Force
 
-# Publiceer het runbook
+# Publish the runbook
 Publish-AzAutomationRunbook `
     -ResourceGroupName $resourceGroup `
     -AutomationAccountName $automationAccountName `
@@ -151,10 +151,10 @@ Publish-AzAutomationRunbook `
 Write-Host "Runbook published: $runbookName"
 ```
 
-### Stap 7: Configureer Variables (optioneel)
+### Step 7: Configure Variables (optional)
 
 ```powershell
-# Sla configuratie op als Automation Variables
+# Save configuration as Automation Variables
 New-AzAutomationVariable `
     -ResourceGroupName $resourceGroup `
     -AutomationAccountName $automationAccountName `
@@ -169,7 +169,7 @@ New-AzAutomationVariable `
     -Value $resourceGroup `
     -Encrypted $false
 
-# Voor SendGrid (optioneel)
+# For SendGrid (optional)
 # New-AzAutomationVariable `
 #     -ResourceGroupName $resourceGroup `
 #     -AutomationAccountName $automationAccountName `
@@ -178,12 +178,12 @@ New-AzAutomationVariable `
 #     -Encrypted $true
 ```
 
-### Stap 8: Creëer Schedule
+### Step 8: Create Schedule
 
 ```powershell
-# Creëer wekelijks schema (elke maandag 08:00)
+# Create weekly schedule (every Monday 08:00)
 $timeZone = "W. Europe Standard Time"
-$startTime = (Get-Date).Date.AddDays(1).AddHours(8)  # Morgen om 08:00
+$startTime = (Get-Date).Date.AddDays(1).AddHours(8)  # Tomorrow at 08:00
 
 New-AzAutomationSchedule `
     -ResourceGroupName $resourceGroup `
@@ -194,7 +194,7 @@ New-AzAutomationSchedule `
     -DaysOfWeek Monday `
     -TimeZone $timeZone
 
-# Link schedule aan runbook
+# Link schedule to runbook
 Register-AzAutomationScheduledRunbook `
     -ResourceGroupName $resourceGroup `
     -AutomationAccountName $automationAccountName `
@@ -209,7 +209,7 @@ Register-AzAutomationScheduledRunbook `
 Write-Host "Schedule created and linked"
 ```
 
-### Stap 9: Test het Runbook
+### Step 9: Test the Runbook
 
 ```powershell
 # Start test run
@@ -301,37 +301,37 @@ Start-Process ".\latest-report.html"
 
 ## Troubleshooting
 
-### Runbook faalt met "Access Denied"
-**Oplossing:** Controleer of de Managed Identity Reader rechten heeft:
+### Runbook fails with "Access Denied"
+**Solution:** Check if the Managed Identity has Reader permissions:
 ```powershell
 Get-AzRoleAssignment -ObjectId $principalId
 ```
 
-### Modules niet gevonden
-**Oplossing:** Wacht tot modules volledig geïnstalleerd zijn:
+### Modules not found
+**Solution:** Wait until modules are fully installed:
 ```powershell
 Get-AzAutomationModule -ResourceGroupName $resourceGroup -AutomationAccountName $automationAccountName
 ```
 
-### Reports worden niet opgeslagen
-**Oplossing:** Controleer Storage rechten:
+### Reports are not saved
+**Solution:** Check Storage permissions:
 ```powershell
 Get-AzRoleAssignment -Scope (Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $storageAccountName).Id
 ```
 
-## Kosten Schatting
+## Cost Estimation
 
-- **Automation Account**: ~$0/maand (first 500 minutes free, then $0.002/min)
-- **Storage Account**: ~$1-5/maand (afhankelijk van report grootte en retentie)
-- **Uitvoering**: ~5-10 minuten per week = gratis binnen free tier
+- **Automation Account**: ~$0/month (first 500 minutes free, then $0.002/min)
+- **Storage Account**: ~$1-5/month (depending on report size and retention)
+- **Execution**: ~5-10 minutes per week = free within free tier
 
-**Totaal: ~$1-5 per maand** voor volledig beheerde enterprise solution
+**Total: ~$1-5 per month** for fully managed enterprise solution
 
-## Email Setup met SendGrid
+## Email Setup with SendGrid
 
-1. Registreer voor [SendGrid](https://sendgrid.com/)
-2. Creëer API Key met "Mail Send" permission
-3. Sla API Key op als encrypted variable:
+1. Register for [SendGrid](https://sendgrid.com/)
+2. Create API Key with "Mail Send" permission
+3. Save API Key as encrypted variable:
 ```powershell
 New-AzAutomationVariable `
     -ResourceGroupName $resourceGroup `
@@ -341,18 +341,18 @@ New-AzAutomationVariable `
     -Encrypted $true
 ```
 
-4. Update runbook parameters met email addresses
+4. Update runbook parameters with email addresses
 
 ## Best Practices
 
-1. Gebruik Managed Identity in plaats van credentials
-2. Implement lifecycle policy op Storage Account (delete oude reports na 90 dagen)
-3. Enable diagnostics op Automation Account
-4. Set up alerts voor failed runs
-5. Tag resources voor cost tracking
-6. Review reports maandelijks en neem actie
+1. Use Managed Identity instead of credentials
+2. Implement lifecycle policy on Storage Account (delete old reports after 90 days)
+3. Enable diagnostics on Automation Account
+4. Set up alerts for failed runs
+5. Tag resources for cost tracking
+6. Review reports monthly and take action
 
-## Meer Informatie
+## More Information
 
 - [Azure Automation Documentation](https://docs.microsoft.com/azure/automation/)
 - [Managed Identities](https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/)

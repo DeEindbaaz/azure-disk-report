@@ -1,27 +1,27 @@
 # Azure Unused Resources Weekly Report
 
-## Overzicht
+## Overview
 
-Dit PowerShell script genereert automatisch een wekelijks HTML-rapport van:
-- **Unattached Managed Disks** - Schijven die niet aan een VM gekoppeld zijn
-- **Unused Public IP Addresses** - Publieke IP-adressen die niet in gebruik zijn
+This PowerShell script automatically generates a weekly HTML report of:
+- **Unattached Managed Disks** - Disks not attached to any VM
+- **Unused Public IP Addresses** - Public IP addresses that are not in use
 
-Het rapport bevat ook geschatte maandelijkse kosten om u te helpen bij het optimaliseren van uw Azure-uitgaven.
+The report also includes estimated monthly costs to help you optimize your Azure spending.
 
-## Bestanden in deze Repository
+## Files in this Repository
 
-- **Generate-AzureResourceReport.ps1** - Hoofdscript voor lokale uitvoering
-- **Azure-Automation-Runbook.ps1** - Versie voor Azure Automation (met Managed Identity)
-- **Setup-WeeklyTask.ps1** - Installeert Windows Scheduled Task
-- **Test-Configuration.ps1** - Valideert omgeving en Azure connectie
-- **AZURE-AUTOMATION-GUIDE.md** - Complete deployment guide voor Azure Automation
-- **QUICKSTART.md** - Snelle start instructies
-- **README.md** - Deze file
+- **Generate-AzureResourceReport.ps1** - Main script for local execution
+- **Azure-Automation-Runbook.ps1** - Version for Azure Automation (with Managed Identity)
+- **Setup-WeeklyTask.ps1** - Installs Windows Scheduled Task
+- **Test-Configuration.ps1** - Validates environment and Azure connectivity
+- **AZURE-AUTOMATION-GUIDE.md** - Complete deployment guide for Azure Automation
+- **QUICKSTART.md** - Quick start instructions
+- **README.md** - This file
 
-## Vereisten
+## Requirements
 
 ### PowerShell Modules
-Het script vereist de volgende Azure PowerShell modules:
+The script requires the following Azure PowerShell modules:
 ```powershell
 Install-Module -Name Az.Accounts -Force -AllowClobber
 Install-Module -Name Az.Compute -Force -AllowClobber
@@ -29,23 +29,23 @@ Install-Module -Name Az.Network -Force -AllowClobber
 ```
 
 ### Azure Permissions
-Uw Azure-account moet minimaal **Reader** permissies hebben op de subscriptions die u wilt scannen.
+Your Azure account must have at least **Reader** permissions on the subscriptions you want to scan.
 
-## Gebruik
+## Usage
 
-### Basis Gebruik
+### Basic Usage
 ```powershell
-# Genereer rapport in huidige directory
+# Generate report in current directory
 .\Generate-AzureResourceReport.ps1
 
-# Genereer rapport in specifieke directory
+# Generate report in specific directory
 .\Generate-AzureResourceReport.ps1 -OutputPath "C:\Reports"
 
-# Scan specifieke subscriptions
+# Scan specific subscriptions
 .\Generate-AzureResourceReport.ps1 -SubscriptionIds "sub-id-1","sub-id-2"
 ```
 
-### Met Email Notificatie
+### With Email Notification
 ```powershell
 .\Generate-AzureResourceReport.ps1 `
     -SendEmail `
@@ -54,20 +54,20 @@ Uw Azure-account moet minimaal **Reader** permissies hebben op de subscriptions 
     -SmtpServer "smtp.company.com"
 ```
 
-## Wekelijkse Automatisering
+## Weekly Automation
 
-### Optie 1: Windows Task Scheduler
-Gebruik het meegeleverde script om een wekelijkse taak in te stellen:
+### Option 1: Windows Task Scheduler
+Use the included script to set up a weekly task:
 
 ```powershell
 .\Setup-WeeklyTask.ps1 -ReportPath "C:\Reports"
 ```
 
-Dit creëert een Windows Scheduled Task die elke maandag om 08:00 het rapport genereert.
+This creates a Windows Scheduled Task that generates the report every Monday at 08:00.
 
-### Optie 2: Handmatige Task Scheduler Setup
+### Option 2: Manual Task Scheduler Setup
 1. Open **Task Scheduler**
-2. Klik op **Create Task**
+2. Click on **Create Task**
 3. General tab:
    - Name: "Azure Weekly Resource Report"
    - Run whether user is logged on or not
@@ -81,113 +81,113 @@ Dit creëert een Windows Scheduled Task die elke maandag om 08:00 het rapport ge
    - Program: `powershell.exe`
    - Arguments: `-ExecutionPolicy Bypass -File "C:\Path\To\Generate-AzureResourceReport.ps1" -OutputPath "C:\Reports"`
 
-### Optie 3: Azure Automation Runbook (Aanbevolen voor Enterprise)
-Voor enterprise omgevingen kunt u dit script als Azure Automation Runbook deployen.
+### Option 3: Azure Automation Runbook (Recommended for Enterprise)
+For enterprise environments, you can deploy this script as an Azure Automation Runbook.
 
-**Zie [AZURE-AUTOMATION-GUIDE.md](AZURE-AUTOMATION-GUIDE.md) voor complete deployment instructies.**
+**See [AZURE-AUTOMATION-GUIDE.md](AZURE-AUTOMATION-GUIDE.md) for complete deployment instructions.**
 
 Quick setup:
-1. Maak een **Automation Account** met PowerShell 5.1 runtime
-2. Installeer modules in deze **specifieke versies** (compatibiliteit getest):
+1. Create an **Automation Account** with PowerShell 5.1 runtime
+2. Install modules in these **specific versions** (compatibility tested):
    - Az.Accounts 2.15.0
    - Az.Compute 4.31.0
    - Az.Network 4.20.0
    - Az.Storage 4.8.0
-3. Upload **Azure-Automation-Runbook.ps1** (niet Generate-AzureResourceReport.ps1)
-4. Schakel **Managed Identity** in
-5. Wijs **Reader** + **Storage Account Contributor** rechten toe
-6. Configureer **Storage Account** voor rapport opslag
-7. Maak een **Schedule** aan (bijvoorbeeld: elke maandag 08:00)
+3. Upload **Azure-Automation-Runbook.ps1** (not Generate-AzureResourceReport.ps1)
+4. Enable **Managed Identity**
+5. Assign **Reader** + **Storage Account Contributor** roles
+6. Configure **Storage Account** for report storage
+7. Create a **Schedule** (e.g., every Monday 08:00)
 
-**Belangrijk**: Module versies zijn kritisch! Az.Compute 7.x werkt niet met Az.Accounts 2.x in PS 5.1.
+**Important**: Module versions are critical! Az.Compute 7.x does not work with Az.Accounts 2.x in PS 5.1.
 
-## Rapport Features
+## Report Features
 
-Het gegenereerde HTML rapport bevat:
-- **Summary Dashboard** met totaal aantal resources en kosten
-- **Detailed Disk Table** met naam, grootte, SKU, en kosten
-- **Public IP Table** met allocation method en kosten
-- **Cost Estimates** per resource en totaal
-- **Action Items** met besparingsmogelijkheden
+The generated HTML report contains:
+- **Summary Dashboard** with total resource count and costs
+- **Detailed Disk Table** with name, size, SKU, and costs
+- **Public IP Table** with allocation method and costs
+- **Cost Estimates** per resource and total
+- **Action Items** with cost-saving opportunities
 
-## Tips voor Kostenbesparing
+## Cost Optimization Tips
 
-Na het bekijken van het rapport:
+After reviewing the report:
 
-### Voor Unattached Disks:
+### For Unattached Disks:
 ```powershell
-# Verwijder een disk (LET OP: Data wordt verwijderd!)
+# Remove a disk (WARNING: Data will be deleted!)
 Remove-AzDisk -ResourceGroupName "RG-Name" -DiskName "DiskName" -Force
 
-# Maak eerst een snapshot (backup)
+# Create a snapshot first (backup)
 $disk = Get-AzDisk -ResourceGroupName "RG-Name" -DiskName "DiskName"
 $snapshotConfig = New-AzSnapshotConfig -SourceUri $disk.Id -CreateOption Copy -Location $disk.Location
 New-AzSnapshot -Snapshot $snapshotConfig -SnapshotName "backup-snapshot" -ResourceGroupName "RG-Name"
 ```
 
-### Voor Unused Public IPs:
+### For Unused Public IPs:
 ```powershell
-# Verwijder een ongebruikt Public IP
+# Remove an unused Public IP
 Remove-AzPublicIpAddress -ResourceGroupName "RG-Name" -Name "IP-Name" -Force
 ```
 
 ## Security Best Practices
 
-1. **Gebruik Managed Identity** wanneer mogelijk (Azure Automation)
-2. **Beperk access** tot alleen de benodigde subscriptions
-3. **Versleutel email credentials** als u SMTP gebruikt
-4. **Review rapporten** regelmatig en neem actie op oude resources
-5. **Test eerst** in een development omgeving
+1. **Use Managed Identity** when possible (Azure Automation)
+2. **Limit access** to only required subscriptions
+3. **Encrypt email credentials** if using SMTP
+4. **Review reports** regularly and take action on old resources
+5. **Test first** in a development environment
 
 ## Output
 
-Het script genereert:
-- **HTML Rapport**: `Azure-UnusedResources-Report-YYYY-MM-DD.html`
-- **Console Output**: Samenvatting met aantallen en kosten
-- **Auto-open**: Rapport wordt automatisch in browser geopend
+The script generates:
+- **HTML Report**: `Azure-UnusedResources-Report-YYYY-MM-DD.html`
+- **Console Output**: Summary with counts and costs
+- **Auto-open**: Report opens automatically in browser
 
 ## Troubleshooting
 
 ### "Module not found" errors
 ```powershell
-# Update alle Az modules
+# Update all Az modules
 Update-Module -Name Az -Force
 ```
 
 ### Azure Automation: "Az.Compute module could not be loaded"
-Dit is een module compatibiliteit probleem in PowerShell 5.1 runtime.
+This is a module compatibility issue in PowerShell 5.1 runtime.
 
-**Oplossing**: Gebruik Az.Compute 4.31.0 in plaats van 7.x
+**Solution**: Use Az.Compute 4.31.0 instead of 7.x
 ```powershell
 # In Azure Portal -> Automation Account -> Modules
-# Verwijder Az.Compute (als 7.x geïnstalleerd is)
-# Installeer Az.Compute 4.31.0 met specifieke URL:
+# Remove Az.Compute (if 7.x is installed)
+# Install Az.Compute 4.31.0 with specific URL:
 # https://www.powershellgallery.com/api/v2/package/Az.Compute/4.31.0
 
-# Wacht tot ProvisioningState = Succeeded
+# Wait until ProvisioningState = Succeeded
 ```
 
-**Werkende module combinatie voor PS 5.1**:
-- Az.Accounts: 2.15.0 ✓
-- Az.Compute: 4.31.0 ✓ (NIET 7.x)
-- Az.Network: 4.20.0 ✓
-- Az.Storage: 4.8.0 ✓
+**Working module combination for PS 5.1**:
+- Az.Accounts: 2.15.0
+- Az.Compute: 4.31.0 (NOT 7.x)
+- Az.Network: 4.20.0
+- Az.Storage: 4.8.0
 
 ### "Insufficient permissions" errors
 ```powershell
 # Check your current role assignments
 Get-AzRoleAssignment -SignInName "your-email@company.com"
 
-# Voor Azure Automation Managed Identity:
+# For Azure Automation Managed Identity:
 Get-AzRoleAssignment -ObjectId "managed-identity-principal-id"
 ```
 
 ### Azure Automation: Storage permission errors
-Zorg dat Managed Identity beide rollen heeft:
-- **Reader** op subscription (voor scannen resources)
-- **Storage Account Contributor** op storage account (voor listKeys)
+Ensure the Managed Identity has both roles:
+- **Reader** on subscription (for scanning resources)
+- **Storage Account Contributor** on storage account (for listKeys)
 
-### "Connect-AzAccount" hangt
+### "Connect-AzAccount" hangs
 ```powershell
 # Clear cached credentials
 Clear-AzContext -Force
@@ -196,7 +196,7 @@ Connect-AzAccount
 
 ## Contact & Support
 
-Voor vragen of problemen, maak een issue aan in de repository.
+For questions or issues, create an issue in the repository.
 
 ## Changelog
 

@@ -1,78 +1,78 @@
 # Quick Start Guide - Azure Resource Report
 
-## Snelstart in 3 stappen
+## Quick Start in 3 Steps
 
-### Stap 1: Installeer Azure PowerShell Modules
-Open PowerShell als Administrator en voer uit:
+### Step 1: Install Azure PowerShell Modules
+Open PowerShell as Administrator and execute:
 ```powershell
 Install-Module -Name Az -Force -AllowClobber -Scope CurrentUser
 ```
 
-### Stap 2: Test het script handmatig
+### Step 2: Test the script manually
 ```powershell
-# Navigeer naar de script directory
+# Navigate to the script directory
 cd "c:\Code\Projects\Personal\disk-ip-weeky-report"
 
-# Voer het script uit
+# Execute the script
 .\Generate-AzureResourceReport.ps1
 ```
 
-Je wordt gevraagd om in te loggen bij Azure. Na succesvolle login wordt het rapport gegenereerd.
+You will be prompted to log in to Azure. After successful login, the report will be generated.
 
-### Stap 3: Automatiseer wekelijks (optioneel)
+### Step 3: Automate weekly (optional)
 ```powershell
-# Open PowerShell als Administrator
+# Open PowerShell as Administrator
 .\Setup-WeeklyTask.ps1 -ReportPath "C:\Reports\Azure"
 ```
 
 ## Checklist
 
-- [ ] Azure PowerShell modules geïnstalleerd
-- [ ] Azure account met Reader rechten
-- [ ] Script succesvol handmatig uitgevoerd
-- [ ] Rapport gegenereerd en geopend in browser
-- [ ] (Optioneel) Wekelijkse taak ingesteld
-- [ ] (Optioneel) Email notificaties geconfigureerd
+- [ ] Azure PowerShell modules installed
+- [ ] Azure account with Reader permissions
+- [ ] Script successfully executed manually
+- [ ] Report generated and opened in browser
+- [ ] (Optional) Weekly task configured
+- [ ] (Optional) Email notifications configured
 
-## Veelgestelde Vragen
+## Frequently Asked Questions
 
-### Q: Welke Azure rechten heb ik nodig?
-**A:** Minimaal **Reader** rechten op de subscriptions die je wilt scannen.
+### Q: What Azure permissions do I need?
+**A:** At minimum **Reader** permissions on the subscriptions you want to scan.
 
-### Q: Hoelang duurt het scannen?
-**A:** Ongeveer 30 seconden per subscription, afhankelijk van het aantal resources.
+### Q: How long does scanning take?
+**A:** Approximately 30 seconds per subscription, depending on the number of resources.
 
-### Q: Worden er resources verwijderd?
-**A:** Nee! Het script leest alleen informatie en genereert een rapport. Het verwijdert geen resources.
+### Q: Are resources deleted?
+**A:** No! The script only reads information and generates a report. It does not delete any resources.
 
-### Q: Kan ik meerdere subscriptions tegelijk scannen?
-**A:** Ja, standaard scant het script alle subscriptions waartoe je toegang hebt.
+### Q: Can I scan multiple subscriptions at once?
+**A:** Yes, by default the script scans all subscriptions you have access to.
 
-### Q: Hoe nauwkeurig zijn de kostenschattingen?
-**A:** De kosten zijn schattingen op basis van publieke Azure prijzen (US East). Werkelijke kosten kunnen variëren per regio en EA-agreement.
+### Q: How accurate are the cost estimates?
+**A:** The costs are estimates based on public Azure pricing (US East). Actual costs may vary by region and EA agreement.
 
-### Q: Kan ik dit in Azure Automation draaien?
-**A:** Ja! Het script is volledig compatibel met Azure Automation Runbooks. Gebruik een Managed Identity voor authenticatie.
+### Q: Can I run this in Azure Automation?
+**A:** Yes! The script is fully compatible with Azure Automation Runbooks. Use a Managed Identity for authentication.
 
 ## Troubleshooting
 
-### Probleem: "Cannot connect to Azure"
-**Oplossing:**
+### Problem: "Cannot connect to Azure"
+**Solution:**
 ```powershell
 Clear-AzContext -Force
 Connect-AzAccount
 ```
 
-### Probleem: "Module Az.Compute not found"
-**Oplossing:**
+### Problem: "Module Az.Compute not found"
+**Solution:**
 ```powershell
 Install-Module Az.Compute -Force -Scope CurrentUser
 Install-Module Az.Network -Force -Scope CurrentUser
 ```
 
-### Probleem: "Access Denied"
-**Oplossing:** Vraag je Azure administrator om Reader rechten op de betreffende subscription(s), of ken deze aan jezelf toe als je daar de mogelijkheid toe hebt.
+### Problem: "Access Denied"
+**Solution:** Ask your Azure administrator for Reader permissions on the relevant subscription(s), or assign them yourself if you have the ability to do so.
 
-## Hulp nodig?
+## Need Help?
 
-Bekijk de volledige [README.md](README.md) voor gedetailleerde informatie.
+See the complete [README.md](README.md) for detailed information.
