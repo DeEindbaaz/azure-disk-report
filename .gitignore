@@ -3,38 +3,58 @@
 # Configuration files with sensitive data
 config.psd1
 *.credentials.json
+*.config.psd1
+!config.example.psd1
 
-# Generated reports
+# Generated reports (HTML)
 *.html
-Azure-UnusedResources-Report-*.html
+*-report-*.html
+azure-report-*.html
 
-# Azure context files
+# Azure context and credentials
 *.azurecontext
+*.azure/
 
-# PowerShell debugging
+# PowerShell debugging and profiling
 *.psess
 *.vsp
+*.psm
+*.psd
 
 # Output folders
 Reports/
 Output/
+Logs/
 
-# Logs
+# Log files
 *.log
 *.err
+*.trace
 
-# Temporary files
+# Temporary and backup files
 *.tmp
+*.temp
 ~$*
 *.bak
+*.backup
+*.old
 
-# User-specific files
+# IDE and editor files
 .vs/
-.vscode/settings.json
+.vscode/
+*.code-workspace
+.idea/
 
-# Windows thumbnail cache
+# Windows files
 Thumbs.db
 ehthumbs.db
+Desktop.ini
 
-# MacOS
+# MacOS files
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux files
+*~
+.directory
