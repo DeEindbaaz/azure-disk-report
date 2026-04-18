@@ -8,6 +8,16 @@ Dit PowerShell script genereert automatisch een wekelijks HTML-rapport van:
 
 Het rapport bevat ook geschatte maandelijkse kosten om u te helpen bij het optimaliseren van uw Azure-uitgaven.
 
+## Bestanden in deze Repository
+
+- **Generate-AzureResourceReport.ps1** - Hoofdscript voor lokale uitvoering
+- **Azure-Automation-Runbook.ps1** - Versie voor Azure Automation (met Managed Identity)
+- **Setup-WeeklyTask.ps1** - Installeert Windows Scheduled Task
+- **Test-Configuration.ps1** - Valideert omgeving en Azure connectie
+- **AZURE-AUTOMATION-GUIDE.md** - Complete deployment guide voor Azure Automation
+- **QUICKSTART.md** - Snelle start instructies
+- **README.md** - Deze file
+
 ## Vereisten
 
 ### PowerShell Modules
@@ -71,13 +81,25 @@ Dit creëert een Windows Scheduled Task die elke maandag om 08:00 het rapport ge
    - Program: `powershell.exe`
    - Arguments: `-ExecutionPolicy Bypass -File "C:\Path\To\Generate-AzureResourceReport.ps1" -OutputPath "C:\Reports"`
 
-### Optie 3: Azure Automation Runbook
-Voor enterprise omgevingen kunt u dit script als Azure Automation Runbook deployen:
-1. Maak een **Automation Account**
-2. Import het script als **Runbook**
-3. Schakel **Managed Identity** in
-4. Wijs **Reader** rechten toe aan de Managed Identity
-5. Maak een **Schedule** aan (wekelijks)
+### Optie 3: Azure Automation Runbook (Aanbevolen voor Enterprise)
+Voor enterprise omgevingen kunt u dit script als Azure Automation Runbook deployen.
+
+**Zie [AZURE-AUTOMATION-GUIDE.md](AZURE-AUTOMATION-GUIDE.md) voor complete deployment instructies.**
+
+Quick setup:
+1. Maak een **Automation Account** met PowerShell 5.1 runtime
+2. Installeer modules in deze **specifieke versies** (compatibiliteit getest):
+   - Az.Accounts 2.15.0
+   - Az.Compute 4.31.0
+   - Az.Network 4.20.0
+   - Az.Storage 4.8.0
+3. Upload **Azure-Automation-Runbook.ps1** (niet Generate-AzureResourceReport.ps1)
+4. Schakel **Managed Identity** in
+5. Wijs **Reader** + **Storage Account Contributor** rechten toe
+6. Configureer **Storage Account** voor rapport opslag
+7. Maak een **Schedule** aan (bijvoorbeeld: elke maandag 08:00)
+
+**Belangrijk**: Module versies zijn kritisch! Az.Compute 7.x werkt niet met Az.Accounts 2.x in PS 5.1.
 
 ## Rapport Features
 
@@ -132,11 +154,38 @@ Het script genereert:
 Update-Module -Name Az -Force
 ```
 
+### Azure Automation: "Az.Compute module could not be loaded"
+Dit is een module compatibiliteit probleem in PowerShell 5.1 runtime.
+
+**Oplossing**: Gebruik Az.Compute 4.31.0 in plaats van 7.x
+```powershell
+# In Azure Portal -> Automation Account -> Modules
+# Verwijder Az.Compute (als 7.x geïnstalleerd is)
+# Installeer Az.Compute 4.31.0 met specifieke URL:
+# https://www.powershellgallery.com/api/v2/package/Az.Compute/4.31.0
+
+# Wacht tot ProvisioningState = Succeeded
+```
+
+**Werkende module combinatie voor PS 5.1**:
+- Az.Accounts: 2.15.0 ✓
+- Az.Compute: 4.31.0 ✓ (NIET 7.x)
+- Az.Network: 4.20.0 ✓
+- Az.Storage: 4.8.0 ✓
+
 ### "Insufficient permissions" errors
 ```powershell
 # Check your current role assignments
 Get-AzRoleAssignment -SignInName "your-email@company.com"
+
+# Voor Azure Automation Managed Identity:
+Get-AzRoleAssignment -ObjectId "managed-identity-principal-id"
 ```
+
+### Azure Automation: Storage permission errors
+Zorg dat Managed Identity beide rollen heeft:
+- **Reader** op subscription (voor scannen resources)
+- **Storage Account Contributor** op storage account (voor listKeys)
 
 ### "Connect-AzAccount" hangt
 ```powershell
